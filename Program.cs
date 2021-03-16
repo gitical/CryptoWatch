@@ -22,5 +22,8 @@ namespace CryptoWatchAPI
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+    
+    
+    
     }
 }
