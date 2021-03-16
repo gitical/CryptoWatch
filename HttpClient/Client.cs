@@ -11,9 +11,11 @@ namespace CryptoWatchAPI.Hubs
         private static readonly HttpClient _client = new HttpClient();
         private static readonly Timer _timer = new Timer();
         private readonly IHubContext<CryptoHub> _hubContext;
+        public bool TimerRunning { get; set; }
 
         public Client(IHubContext<CryptoHub> hubContext)
         {
+            TimerRunning = false;
             _hubContext = hubContext;
             initTimer();
         }
@@ -26,6 +28,7 @@ namespace CryptoWatchAPI.Hubs
                 _hubContext.Clients.All.SendAsync("UpdatePrices", "");
             };
             _timer.Start();
+            TimerRunning = true;
         }
 
     }

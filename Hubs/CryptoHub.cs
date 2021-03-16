@@ -7,6 +7,12 @@ namespace CryptoWatchAPI.Hubs
     public class CryptoHub : Hub
     {
 
+        public CryptoHub(Client client)
+        {
+
+
+
+        }
 
     }
 
