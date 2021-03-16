@@ -53,6 +53,7 @@ namespace CryptoWatchAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHub<CryptoHub>("/cryptofeed");
             });
         }
     }
