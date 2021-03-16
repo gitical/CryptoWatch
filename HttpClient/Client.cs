@@ -13,9 +13,18 @@ namespace CryptoWatchAPI.Hubs
 
         public Client()
         {
-
+            initTimer();
         }
 
+        private void initTimer()
+        {
+            _timer.Interval = 1000;
+            _timer.Elapsed += (sender, e) =>
+            {
+                
+            };
+            _timer.Start();
+        }
 
     }
 
