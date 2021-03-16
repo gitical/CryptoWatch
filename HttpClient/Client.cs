@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Timers;
@@ -9,13 +10,12 @@ namespace CryptoWatchAPI.Hubs
     {
 
         private static readonly HttpClient _client = new HttpClient();
-        private static readonly Timer _timer = new Timer();
+        private readonly Timer _timer = new Timer();
         private readonly IHubContext<CryptoHub> _hubContext;
-        public bool TimerRunning { get; set; }
+
 
         public Client(IHubContext<CryptoHub> hubContext)
         {
-            TimerRunning = false;
             _hubContext = hubContext;
             initTimer();
         }
@@ -23,12 +23,36 @@ namespace CryptoWatchAPI.Hubs
         private void initTimer()
         {
             _timer.Interval = 1000;
-            _timer.Elapsed += (sender, e) =>
-            {
-                _hubContext.Clients.All.SendAsync("UpdatePrices", "");
-            };
+            _timer.Elapsed += async (sender, e) =>
+           {
+
+               var res = await Get();
+
+               if (res != null)
+                   await _hubContext.Clients.All.SendAsync("UpdatePrices", res);
+
+           };
             _timer.Start();
-            TimerRunning = true;
+        }
+
+        private async Task<string> Get()
+        {
+            // Call asynchronous network methods in a try/catch block to handle exceptions.
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync("https://api.miraiex.com/v2/markets");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                // Above three lines can be replaced with new helper method below
+                // string responseBody = await client.GetStringAsync(uri);
+
+                return responseBody;
+            }
+            catch (HttpRequestException e)
+            {
+
+            }
+            return null;
         }
 
     }
