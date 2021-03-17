@@ -1,4 +1,4 @@
-# CoinWatch
+# CryptoWatch
 Small realtime api showing current price of well known crypto currencies.
 
 ## Installation
