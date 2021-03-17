@@ -29,16 +29,16 @@ namespace CryptoWatchAPI.Hubs
             _timer.Elapsed += async (sender, e) =>
            {
 
-               var res = await Get();
+               var res = await Get<List<Stock>>();
 
                if (res != null)
-                   await _hubContext.Clients.All.SendAsync("UpdatePrices", res);
+                   await _hubContext.Clients.All.SendAsync("UpdatePrices", res, DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"));
 
            };
             _timer.Start();
         }
 
-        private async Task<List<Stock>> Get()
+        private async Task<T> Get<T>()
         {
             try
             {
@@ -46,7 +46,7 @@ namespace CryptoWatchAPI.Hubs
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                var stock = Deserialize<List<Stock>>(responseBody);
+                var stock = Deserialize<T>(responseBody);
 
                 return stock;
             }
@@ -54,7 +54,8 @@ namespace CryptoWatchAPI.Hubs
             {
 
             }
-            return null;
+
+            return default(T);
         }
 
         private T Deserialize<T>(string json)
