@@ -3,6 +3,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json;
+using CryptoWatchAPI.Models;
+using System.Collections.Generic;
 
 namespace CryptoWatchAPI.Hubs
 {
@@ -35,18 +38,22 @@ namespace CryptoWatchAPI.Hubs
             _timer.Start();
         }
 
-        private async Task<string> Get()
+        private async Task<List<Stock>> Get()
         {
-            // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
                 HttpResponseMessage response = await _client.GetAsync("https://api.miraiex.com/v2/markets");
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-                // Above three lines can be replaced with new helper method below
-                // string responseBody = await client.GetStringAsync(uri);
 
-                return responseBody;
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var stock = JsonSerializer.Deserialize<List<Stock>>(responseBody, options);
+
+                return stock;
             }
             catch (HttpRequestException e)
             {
