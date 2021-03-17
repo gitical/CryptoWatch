@@ -45,13 +45,8 @@ namespace CryptoWatchAPI.Hubs
                 HttpResponseMessage response = await _client.GetAsync("https://api.miraiex.com/v2/markets");
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
-                var stock = JsonSerializer.Deserialize<List<Stock>>(responseBody, options);
+                
+                var stock = Deserialize<List<Stock>>(responseBody);
 
                 return stock;
             }
@@ -60,6 +55,16 @@ namespace CryptoWatchAPI.Hubs
 
             }
             return null;
+        }
+
+        private T Deserialize<T>(string json)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            return JsonSerializer.Deserialize<T>(json, options);
         }
 
     }
