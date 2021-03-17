@@ -45,7 +45,7 @@ namespace CryptoWatchAPI.Hubs
                 HttpResponseMessage response = await _client.GetAsync("https://api.miraiex.com/v2/markets");
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-                
+
                 var stock = Deserialize<List<Stock>>(responseBody);
 
                 return stock;

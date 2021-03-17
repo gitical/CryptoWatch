@@ -2,12 +2,16 @@
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/cryptofeed").build();
 
+const btc = "BTCNOK";
+const ltc = "LTCNOK";
+const eth = "ETHNOK";
+
 connection.on("UpdatePrices", function (feed) {
     console.log(feed);
 
-    document.getElementById("BTCNOK").innerText = feed.find(x => x.id === 'BTCNOK').last;
-    document.getElementById("LTCNOK").innerText = feed.find(x => x.id === 'LTCNOK').last;
-    document.getElementById("ETHNOK").innerText = feed.find(x => x.id === 'ETHNOK').last;
+    document.getElementById(btc).innerText = feed.find(x => x.id === btc).last;
+    document.getElementById(ltc).innerText = feed.find(x => x.id === ltc).last;
+    document.getElementById(eth).innerText = feed.find(x => x.id === eth).last;
 });
 
 connection.start()
