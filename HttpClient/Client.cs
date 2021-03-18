@@ -11,44 +11,50 @@ namespace CryptoWatchAPI.Hubs
 {
     public class Client
     {
-
-        private static readonly HttpClient _client = new HttpClient();
-        private readonly Timer _timer = new Timer();
         private readonly IHubContext<CryptoHub> _hubContext;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
 
-
-        public Client(IHubContext<CryptoHub> hubContext)
+        public Client(IHubContext<CryptoHub> hubContext, IHttpClientFactory httpClientFactory)
         {
+            _httpClientFactory = httpClientFactory;
             _hubContext = hubContext;
-            initTimer();
+            _httpClient = _httpClientFactory.CreateClient("miraiex");
+
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await _hubContext.Clients.All.SendAsync("GetServerTime", DateTimeOffset.UtcNow);
+                    await Task.Delay(1000);
+                }
+            });
+
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    var stocks = await GetAsync<List<Stock>>("/v2/markets");
+                    if (stocks != null)
+                    {
+                        await _hubContext.Clients.All.SendAsync("UpdatePrices", stocks);
+                        await Task.Delay(1000);
+                    }
+                }
+            });
         }
 
-        private void initTimer()
-        {
-            _timer.Interval = 1000;
-            _timer.Elapsed += async (sender, e) =>
-           {
-
-               var res = await Get<List<Stock>>();
-
-               if (res != null)
-                   await _hubContext.Clients.All.SendAsync("UpdatePrices", res, DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"));
-
-           };
-            _timer.Start();
-        }
-
-        private async Task<T> Get<T>()
+        private async Task<T> GetAsync<T>(string path)
         {
             try
             {
-                HttpResponseMessage response = await _client.GetAsync("https://api.miraiex.com/v2/markets");
+                HttpResponseMessage response = await _httpClient.GetAsync(path);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                var stock = Deserialize<T>(responseBody);
+                var deserializedVal = responseBody.Deserialize<T>();
 
-                return stock;
+                return deserializedVal;
             }
             catch (HttpRequestException e)
             {
@@ -57,17 +63,5 @@ namespace CryptoWatchAPI.Hubs
 
             return default(T);
         }
-
-        private T Deserialize<T>(string json)
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            return JsonSerializer.Deserialize<T>(json, options);
-        }
-
     }
-
 }

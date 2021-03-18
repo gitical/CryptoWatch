@@ -6,3 +6,7 @@ Small realtime api showing current price of well known crypto currencies.
 ```bash
 dotnet run
 ```
+
+## Demo
+
+Demo can be found here: https://cryptowatch.azurewebsites.net/

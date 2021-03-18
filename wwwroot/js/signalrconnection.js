@@ -6,15 +6,19 @@ const btc = "BTCNOK";
 const ltc = "LTCNOK";
 const eth = "ETHNOK";
 
-connection.on("UpdatePrices", function (feed, serverTime) {
+connection.on("UpdatePrices", function (feed) {
     console.log(feed);
 
     document.getElementById(btc).innerText = feed.find(x => x.id === btc).last;
     document.getElementById(ltc).innerText = feed.find(x => x.id === ltc).last;
     document.getElementById(eth).innerText = feed.find(x => x.id === eth).last;
+});
 
+connection.on("GetServerTime", function (serverTime) {
     document.getElementById("serverTime").innerText = serverTime;
 });
+
+
 
 connection.start()
     .catch(function (err) {
