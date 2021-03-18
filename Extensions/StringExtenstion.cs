@@ -16,7 +16,7 @@ public static class StringExtension
         catch (JsonException e)
         {
             return default(T);
-        }
+        }|
 
     }
 }
