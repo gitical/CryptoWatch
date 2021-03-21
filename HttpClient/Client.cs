@@ -52,7 +52,7 @@ namespace CryptoWatchAPI.Hubs
             }
             catch (HttpRequestException e)
             {
-
+                System.Console.WriteLine(e);
             }
 
             return default(T);
